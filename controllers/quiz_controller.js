@@ -2,8 +2,10 @@ var models = require('../models/models.js');
 
 // Autoload - factoriza el código si la ruta incluye :quizId
 exports.load = function(req, res, next, quizId) {
-	models.Quiz.find(quizId).then(
-		function(quiz) {
+	models.Quiz.find({
+              where: { id: Number(quizId) },
+              include: [{ model: models.Comment }]
+            }).then(function(quiz) {
 			if (quiz) {
 				req.quiz = quiz;
 				next();
@@ -14,18 +16,30 @@ exports.load = function(req, res, next, quizId) {
 
 // GET /quizes
 exports.index = function(req, res) {
-  var search = "%";
-  if(req.query.search != undefined) {
-    search = "%" + req.query.search + "%";
-    search = search.trim().replace(/\s/g,"%");
-  }
+var consulta = req.query.search || "";
+  var consulta_tema = req.query.search_tema || "";
+  
+//  consulta = ('%' + consulta.toLowerCase() + '%').replace(/ /g,'%');
+//  consulta_tema = ('%' + consulta_tema.toLowerCase() + '%').replace(/ /g,'%');
 
-  models.Quiz.findAll({where:["upper(pregunta) like ?", search.toUpperCase()], order: 'pregunta ASC'}).then(
-    function(quizes) {
-      res.render('quizes/index.ejs', {quizes: quizes, errors: []});
-    }
-  ).catch(function(error){next(error)})
-};
+  consulta = ('%' + consulta + '%').replace(/ /g,'%');
+  consulta_tema = ('%' + consulta_tema + '%').replace(/ /g,'%');  
+
+//      models.Quiz.findAll({  where: 
+//                  ["LOWER(pregunta) like ?", consulta],
+//                  ["LOWER(tema) like ?", consulta_tema],
+//                  order:  [['pregunta', 'ASC']]}
+
+        models.Quiz.findAll({where: {
+                    pregunta: {like: consulta},
+                    tema: {like :consulta_tema}},
+                    order:[["pregunta", "ASC"]]})
+          .then(
+            function(quizes) {
+              res.render('quizes/index.ejs', {quizes: quizes, temas: models.temas, errors: []});
+            })
+          .catch(function(error){next(error)})
+        };
 
 // GET /quizes/:id
 exports.show = function(req, res) {
@@ -46,7 +60,7 @@ exports.new = function(req, res) {
   var quiz = models.Quiz.build( // crea objeto quiz
     {pregunta: "Pregunta", respuesta: "Respuesta", tema: "Tema"}
   );
-  res.render('quizes/new', {quiz: quiz, errors: []});
+  res.render('quizes/new', {quiz: quiz, temas: models.temas, errors: []});
 };
 
 // POST /quizes/create
@@ -71,7 +85,7 @@ exports.create = function(req, res) {
 exports.edit = function(req, res) {
   var quiz = req.quiz; // autoload de instancia de quiz
 
-  res.render('quizes/edit', {quiz: quiz, errors: []});
+  res.render('quizes/edit', {quiz: quiz, temas: models.temas, errors: []});
 };
 
 // PUT /quizes/:id

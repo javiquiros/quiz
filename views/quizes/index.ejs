@@ -1,5 +1,12 @@
  <form method="get" action="/quizes">        
  	<input type="text" name="search" placeholder="Busqueda"/>
+ 	<select name="search_tema">
+		<option value="%%" selected>Todos</option>
+		<% for(var i=0; i < temas.length; i++){ %>
+			<option value="<%= temas[i] %>"><%= temas[i] %></option>
+		<% } %>
+		</select>
+
  	<input type="submit" value="Enviar">
 </form>
 <br>
