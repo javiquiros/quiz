@@ -6,8 +6,7 @@
     "start": "node ./bin/www"
   },
   "engines": {
-    "node": "0.10.x",
-    "npm": "1.4.x"
+    "node": "0.14.x"
   },
   "devDependencies": {
     "sqlite3": "^3.0.8"
@@ -20,7 +19,7 @@
     "express": "~4.9.0",
     "express-partials": "^0.3.0",
     "morgan": "~1.3.0",
-    "sequelize": "^2.0.0-rc4",
+    "sequelize": "^2.1.3",
     "serve-favicon": "~2.1.3",
     "pg": "^4.1.1",
     "pg-hstore": "^2.3.2",
